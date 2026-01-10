@@ -110,7 +110,7 @@ model Address {
     street    String
     city      String
     state     String
-    zip       String
+    pincode   String
     country   String
     phone     String
     createdAt DateTime @default(now())
