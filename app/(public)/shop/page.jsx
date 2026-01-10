@@ -7,7 +7,6 @@ import { useSelector } from "react-redux"
 
  function ShopContent() {
 
-    // get query params ?search=abc
     const searchParams = useSearchParams()
     const search = searchParams.get('search')
     const router = useRouter()

@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 export default function Cart() {
 
-    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '$';
+    const currency = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₹';
     
     const { cartItems } = useSelector(state => state.cart);
     const products = useSelector(state => state.product.list);
@@ -50,7 +50,6 @@ export default function Cart() {
         <div className="min-h-screen mx-6 text-slate-800">
 
             <div className="max-w-7xl mx-auto ">
-                {/* Title */}
                 <PageTitle heading="My Cart" text="items in your cart" linkText="Add more" />
 
                 <div className="flex items-start justify-between gap-5 max-lg:flex-col">

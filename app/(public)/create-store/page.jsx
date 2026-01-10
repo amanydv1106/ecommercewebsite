@@ -13,7 +13,7 @@ export default function CreateStore() {
     const { user } = useUser()
     const router = useRouter()
     const { getToken } = useAuth()
-    
+
     const [alreadySubmitted, setAlreadySubmitted] = useState(false)
     const [status, setStatus] = useState("")
     const [loading, setLoading] = useState(true)
@@ -36,33 +36,32 @@ export default function CreateStore() {
     const fetchSellerStatus = async () => {
         const token = await getToken()
         try {
-            const { data } = await axios.get("/api/store/create", {
+            const { data } = await axios.get('/api/store/create', {
                 headers: { Authorization: `Bearer ${token}` },
             })
-
             if (['approved', 'rejected', 'pending'].includes(data.status)) {
                 setStatus(data.status)
                 setAlreadySubmitted(true)
                 switch (data.status) {
-                    case approved:
+                    case "approved":
                         setMessage("Your store has been approved, you can now add products to your store from dashboard")
                         setTimeout(() => router.push("/store"), 5000)
                         break;
-                    case rejected:
-                        setMessage("Your store request has been rejected,contact the admin for more details")
+                    case "rejected":
+                        setMessage("Your store request has been rejected, contact the admin for more details")
                         break;
-                    case pending:
-                        setMessage("Your store request is pending, please wait for the admin to approve your store")
-                        break;
+                    case "pending":
+                        setMessage("Your store request is pending, please wait for admin to approve your store")
+                        break;          
                     default:
                         break;
-                } 
+                }
             } else {
                 setAlreadySubmitted(false)
             }
         } catch (error) {
             toast.error(error?.response?.data?.error || error.message)
-        } 
+        }
         setLoading(false)
     }
 
@@ -82,7 +81,7 @@ export default function CreateStore() {
             formData.append("address", storeInfo.address)
             formData.append("image", storeInfo.image)
 
-            const {data} = await axios.post("/api/store/create", formData, {
+            const {data} = await axios.post('/api/store/create', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             })
             toast.success(data.message)
@@ -102,7 +101,7 @@ export default function CreateStore() {
         return (
             <div className="min-h-[80vh] mx-6 flex items-center justify-center text-slate-400">
                 <h1 className="text-2xl sm:text-4xl font-semibold">
-                    Please <span className="text-slate-500">login</span> to continue
+                    Please <span className="text-slate-500">Login</span> to continue
                 </h1>
             </div>
         )
@@ -113,7 +112,6 @@ export default function CreateStore() {
             {!alreadySubmitted ? (
                 <div className="mx-6 min-h-[70vh] my-16">
                     <form onSubmit={e => toast.promise(onSubmitHandler(e), { loading: "Submitting data..." })} className="max-w-7xl mx-auto flex flex-col items-start gap-3 text-slate-500">
-                        {/* Title */}
                         <div>
                             <h1 className="text-3xl ">Add Your <span className="text-slate-800 font-medium">Store</span></h1>
                             <p className="max-w-lg">To become a seller on GoCart, submit your store details for review. Your store will be activated after admin verification.</p>

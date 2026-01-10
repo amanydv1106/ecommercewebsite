@@ -1,7 +1,9 @@
 'use client'
 import { useEffect, useState } from "react"
 import Loading from "@/components/Loading"
-import { orderDummyData } from "@/assets/assets"
+import { useAuth } from "@clerk/nextjs"
+import axios from "axios"
+import toast from "react-hot-toast"
 
 export default function StoreOrders() {
     const [orders, setOrders] = useState([])
@@ -10,15 +12,33 @@ export default function StoreOrders() {
     const [isModalOpen, setIsModalOpen] = useState(false)
 
 
+    const { getToken } = useAuth()
+
     const fetchOrders = async () => {
-       setOrders(orderDummyData)
-       setLoading(false)
+       try {
+        const token = await getToken()
+        const { data } = await axios.get('/api/store/orders', {headers: { Authorization: `Bearer ${token}` }})
+        setOrders(data.orders)
+       } catch (error) {
+        toast.error(error?.response?.data?.error || error.message)
+       }finally{
+        setLoading(false)
+       }
     }
 
     const updateOrderStatus = async (orderId, status) => {
-        // Logic to update the status of an order
-
-
+        try {
+            const token = await getToken()
+            await axios.post('/api/store/orders',{orderId, status}, {headers: { Authorization: `Bearer ${token}` }})
+            setOrders(prev =>
+                prev.map(order => 
+                    order.id === orderId ? {...order, status} : order
+                )
+            )
+            toast.success('Order status updated!')
+       } catch (error) {
+            toast.error(error?.response?.data?.error || error.message)
+       }
     }
 
     const openModal = (order) => {
@@ -96,7 +116,6 @@ export default function StoreOrders() {
                 </div>
             )}
 
-            {/* Modal */}
             {isModalOpen && selectedOrder && (
                 <div onClick={closeModal} className="fixed inset-0 flex items-center justify-center bg-black/50 text-slate-700 text-sm backdrop-blur-xs z-50" >
                     <div onClick={e => e.stopPropagation()} className="bg-white rounded-lg shadow-lg max-w-2xl w-full p-6 relative">
@@ -104,7 +123,6 @@ export default function StoreOrders() {
                             Order Details
                         </h2>
 
-                        {/* Customer Details */}
                         <div className="mb-4">
                             <h3 className="font-semibold mb-2">Customer Details</h3>
                             <p><span className="text-green-700">Name:</span> {selectedOrder.user?.name}</p>
@@ -113,14 +131,13 @@ export default function StoreOrders() {
                             <p><span className="text-green-700">Address:</span> {`${selectedOrder.address?.street}, ${selectedOrder.address?.city}, ${selectedOrder.address?.state}, ${selectedOrder.address?.zip}, ${selectedOrder.address?.country}`}</p>
                         </div>
 
-                        {/* Products */}
                         <div className="mb-4">
                             <h3 className="font-semibold mb-2">Products</h3>
                             <div className="space-y-2">
                                 {selectedOrder.orderItems.map((item, i) => (
                                     <div key={i} className="flex items-center gap-4 border border-slate-100 shadow rounded p-2">
                                         <img
-                                            src={item.product.images?.[0].src || item.product.images?.[0]}
+                                            src={item.product?.images?.[0]}
                                             alt={item.product?.name}
                                             className="w-16 h-16 object-cover rounded"
                                         />
@@ -134,7 +151,6 @@ export default function StoreOrders() {
                             </div>
                         </div>
 
-                        {/* Payment & Status */}
                         <div className="mb-4">
                             <p><span className="text-green-700">Payment Method:</span> {selectedOrder.paymentMethod}</p>
                             <p><span className="text-green-700">Paid:</span> {selectedOrder.isPaid ? "Yes" : "No"}</p>
@@ -145,7 +161,6 @@ export default function StoreOrders() {
                             <p><span className="text-green-700">Order Date:</span> {new Date(selectedOrder.createdAt).toLocaleString()}</p>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex justify-end">
                             <button onClick={closeModal} className="px-4 py-2 bg-slate-200 rounded hover:bg-slate-300" >
                                 Close

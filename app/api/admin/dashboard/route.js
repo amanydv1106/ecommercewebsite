@@ -1,4 +1,3 @@
-import Orders from "@/app/(public)/orders/page";
 import prisma from "@/lib/prisma";
 import authAdmin from "@/middlewares/authAdmin";
 import { getAuth } from "@clerk/nextjs/server";
@@ -6,46 +5,46 @@ import { NextResponse } from "next/server";
 
 
 export async function GET(request) {
-  try {
-    const { userId } = getAuth(request)
+    try {
+        const { userId } = getAuth(request)
     const isAdmin = await authAdmin(userId)
 
-    if(!isAdmin) {
-      return NextResponse.json({error: "not authorized"}, { status: 401})
-    }
+     if(!isAdmin) {
+            return NextResponse.json({error: 'not authorized'}, { status: 401});
+        }
 
     const orders = await prisma.order.count()
 
     const stores = await prisma.store.count()
 
-    const allorders = await prisma.order.findMany({
-      select: {
-        createdAt: true,
-        total: true,
-      }
+    const allOrders = await prisma.order.findMany({
+        select: {
+            createdAt: true,
+            total: true,
+        }
     })
 
     let totalRevenue = 0;
-    allorders.forEach(order => { 
-      totalRevenue += order.total
+    allOrders.forEach(order => {
+        totalRevenue += order.total
     })
 
     const revenue = totalRevenue.toFixed(2)
 
-    const products = await prisma.product.count()
+     const products = await prisma.product.count()
 
     const dashboardData = {
-      orders,
-      stores,
-      products,
-      revenue,
-      allorders
+        orders,
+        stores,
+        products,
+        revenue,
+        allOrders
     }
 
     return NextResponse.json({dashboardData})
-    
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({error: error.code || error.message }, { status: 400})
-  }
+
+    } catch (error) {
+         console.error(error);
+         return NextResponse.json({error: error.code || error.message }, { status: 400})
+    }
 }

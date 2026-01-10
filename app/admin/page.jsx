@@ -1,8 +1,8 @@
 'use client'
-import { dummyAdminDashboardData } from "@/assets/assets"
 import Loading from "@/components/Loading"
 import OrdersAreaChart from "@/components/OrdersAreaChart"
-import { useAuth } from "@clerk/clerk-react"
+import { useAuth } from "@clerk/nextjs"
+import axios from "axios"
 import { CircleDollarSignIcon, ShoppingBasketIcon, StoreIcon, TagsIcon } from "lucide-react"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
@@ -31,13 +31,13 @@ export default function AdminDashboard() {
 
     const fetchDashboardData = async () => {
         try {
-            const tokan = await getToken()
-            const { data } = await axios.get('/api/admin/dashboard', {headers: {
-                Authorization: `Bearer ${token}`
-            }})
+            const token = await getToken()
+            const { data } = await axios.get('/api/admin/dashboard', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
             setDashboardData(data.dashboardData)
         } catch (error) {
-            toast.error(error?.response?.data?.error || error.message)
+           toast.error(error?.response?.data?.error || error.message) 
         }
         setLoading(false)
     }
@@ -52,7 +52,6 @@ export default function AdminDashboard() {
         <div className="text-slate-500">
             <h1 className="text-2xl">Admin <span className="text-slate-800 font-medium">Dashboard</span></h1>
 
-            {/* Cards */}
             <div className="flex flex-wrap gap-5 my-10 mt-4">
                 {
                     dashboardCardsData.map((card, index) => (
@@ -67,7 +66,6 @@ export default function AdminDashboard() {
                 }
             </div>
 
-            {/* Area Chart */}
             <OrdersAreaChart allOrders={dashboardData.allOrders} />
         </div>
     )
